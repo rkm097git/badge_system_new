@@ -1,28 +1,49 @@
 /**
- * Principal componente de formulário para criação e edição de regras.
- * Este arquivo serve como ponto de entrada, compondo os subcomponentes
- * necessários para o formulário completo.
+ * RuleForm - Componente principal para criação e edição de regras de atribuição
+ * 
+ * Responsável por orquestrar os subcomponentes do formulário e gerenciar o estado
+ * através do hook useRuleForm.
+ * 
+ * @component
  */
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useRuleForm } from "../../hooks/useRuleForm";
+
+// Components
+import { RuleFormHeader } from "./RuleFormHeader";
 import { RuleBasicInfo } from "./RuleBasicInfo";
 import { RuleTypeSelection } from "./RuleTypeSelection";
 import { RuleContextSelection } from "./RuleContextSelection";
 import { RuleTypeConfig } from "./RuleTypeConfig";
-import { useRouter } from "next/navigation";
+
+// Hooks and types
+import { useRuleForm } from "../../hooks/useRuleForm";
 import { Rule } from "../../types";
-import { useEffect } from "react";
 
 interface RuleFormProps {
+  /** ID único da regra para edição (omitir para criação) */
   uid?: string;
+  
+  /** URL para redirecionamento após salvar/cancelar */
   redirectUrl?: string;
+  
+  /** Callback após salvar com sucesso */
   afterSuccess?: (rule: Rule) => void;
 }
 
-export function RuleForm({ uid, redirectUrl = "/admin/rules", afterSuccess }: RuleFormProps) {
+/**
+ * Componente principal do formulário de regras
+ * Gerencia o estado global do formulário e coordena os subcomponentes
+ */
+export function RuleForm({ 
+  uid, 
+  redirectUrl = "/admin/rules", 
+  afterSuccess 
+}: RuleFormProps) {
   const router = useRouter();
   
   // Instalar redirecionamento global como fallback
@@ -57,19 +78,19 @@ export function RuleForm({ uid, redirectUrl = "/admin/rules", afterSuccess }: Ru
     };
   }, [redirectUrl]);
   
-  console.log('[V1.2.0] RuleForm montado, redirectUrl =', redirectUrl);
+  console.log('[V1.9.1] RuleForm montado, redirectUrl =', redirectUrl);
   
   // Handler de sucesso para redirecionamento após salvar
   const handleSuccess = (rule: Rule) => {
-    console.log('[V1.3.0] Regra salva com sucesso:', rule);
-    console.log('[V1.3.0] Callback executado, redirecionando para:', redirectUrl);
+    console.log('[V1.9.1] Regra salva com sucesso:', rule);
+    console.log('[V1.9.1] Callback executado, redirecionando para:', redirectUrl);
     
     // Usar o callback depois do sucesso, se fornecido
     if (afterSuccess) {
-      console.log('[V1.3.0] Executando afterSuccess do componente pai');
+      console.log('[V1.9.1] Executando afterSuccess do componente pai');
       afterSuccess(rule);
     } else {
-      console.log('[V1.3.0] Sem afterSuccess, fazendo redirecionamento padrão');
+      console.log('[V1.9.1] Sem afterSuccess, fazendo redirecionamento padrão');
       // Redirecionamento padrão caso não haja callback
       window.location.href = redirectUrl;
     }
@@ -108,15 +129,12 @@ export function RuleForm({ uid, redirectUrl = "/admin/rules", afterSuccess }: Ru
       <Card className="border-0 bg-white/60 shadow-lg backdrop-blur-sm relative w-full overflow-hidden">
         {/* Indicador de versão para testes */}
         <div className="fixed bottom-2 left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded-md shadow-sm z-50">
-          Versão 1.9.0
+          Versão 1.9.1
         </div>
-        <CardHeader className="pb-3 border-b border-gray-100">
-          <CardTitle className="flex items-center text-xl font-semibold text-gray-800">
-          <div className="flex items-center justify-between w-full">
-            {uid ? 'Editar Regra de Atribuição' : 'Nova Regra de Atribuição'}
-          </div>
-          </CardTitle>
-        </CardHeader>
+        
+        {/* Cabeçalho extraído para o componente RuleFormHeader */}
+        <RuleFormHeader uid={uid} redirectUrl={redirectUrl} />
+        
         <CardContent className="space-y-6 pt-6 overflow-hidden">
           {/* Informações básicas (nome, descrição) */}
           <RuleBasicInfo 
@@ -200,4 +218,12 @@ export function RuleForm({ uid, redirectUrl = "/admin/rules", afterSuccess }: Ru
       </Card>
     </form>
   );
+}
+
+// Adicionar type augmentation para o objeto window
+declare global {
+  interface Window {
+    __lastSuccessfulSave: number | null;
+    __forceRedirectToRules: (() => void) | null;
+  }
 }

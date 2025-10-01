@@ -736,6 +736,9 @@ video {
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
 .mb-2 {
   margin-bottom: 0.5rem;
 }
@@ -762,6 +765,9 @@ video {
 }
 .mr-2 {
   margin-right: 0.5rem;
+}
+.mt-0\.5 {
+  margin-top: 0.125rem;
 }
 .mt-1 {
   margin-top: 0.25rem;
@@ -1089,6 +1095,10 @@ video {
 .border-background {
   --tw-border-opacity: 1;
   border-color: hsl(0 0% 100% / var(--tw-border-opacity, 1));
+}
+.border-blue-100 {
+  --tw-border-opacity: 1;
+  border-color: rgb(219 234 254 / var(--tw-border-opacity, 1));
 }
 .border-blue-200 {
   --tw-border-opacity: 1;
@@ -1434,13 +1444,20 @@ video {
   --tw-text-opacity: 1;
   color: rgb(37 99 235 / var(--tw-text-opacity, 1));
 }
+.text-blue-700 {
+  --tw-text-opacity: 1;
+  color: rgb(29 78 216 / var(--tw-text-opacity, 1));
+}
+.text-blue-800 {
+  --tw-text-opacity: 1;
+  color: rgb(30 64 175 / var(--tw-text-opacity, 1));
+}
 .text-card-foreground {
   --tw-text-opacity: 1;
   color: hsl(222.2 47.4% 11.2% / var(--tw-text-opacity, 1));
 }
-.text-destructive {
-  --tw-text-opacity: 1;
-  color: hsl(0 100% 50% / var(--tw-text-opacity, 1));
+.text-current {
+  color: currentColor;
 }
 .text-destructive-foreground {
   --tw-text-opacity: 1;
@@ -1810,6 +1827,10 @@ h1, h2, h3, h4, h5, h6 {
   --tw-text-opacity: 1;
   color: rgb(37 99 235 / var(--tw-text-opacity, 1));
 }
+.hover\:text-blue-800:hover {
+  --tw-text-opacity: 1;
+  color: rgb(30 64 175 / var(--tw-text-opacity, 1));
+}
 .hover\:text-foreground:hover {
   --tw-text-opacity: 1;
   color: hsl(222.2 47.4% 11.2% / var(--tw-text-opacity, 1));
@@ -2007,6 +2028,10 @@ h1, h2, h3, h4, h5, h6 {
   --tw-bg-opacity: 1;
   background-color: hsl(0 0% 100% / var(--tw-bg-opacity, 1));
 }
+.data-\[state\=checked\]\:bg-primary[data-state="checked"] {
+  --tw-bg-opacity: 1;
+  background-color: hsl(222.2 47.4% 55.2% / var(--tw-bg-opacity, 1));
+}
 .data-\[state\=selected\]\:bg-muted[data-state="selected"] {
   --tw-bg-opacity: 1;
   background-color: hsl(210 40% 96.1% / var(--tw-bg-opacity, 1));
@@ -2018,6 +2043,10 @@ h1, h2, h3, h4, h5, h6 {
 .data-\[state\=active\]\:text-foreground[data-state="active"] {
   --tw-text-opacity: 1;
   color: hsl(222.2 47.4% 11.2% / var(--tw-text-opacity, 1));
+}
+.data-\[state\=checked\]\:text-primary-foreground[data-state="checked"] {
+  --tw-text-opacity: 1;
+  color: hsl(210 40% 98% / var(--tw-text-opacity, 1));
 }
 .data-\[disabled\]\:opacity-50[data-disabled] {
   opacity: 0.5;

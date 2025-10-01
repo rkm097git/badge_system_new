@@ -102,43 +102,53 @@ export const rulesApi = {
    * @returns Dados formatados para a API
    */
   transformFormToApiInput(formData: any): RuleCreateInput | RuleUpdateInput {
+    // Null safety check
+    if (!formData) {
+      formData = {};
+    }
+
     // Determinar o tipo de configuração baseado no tipo de regra
     let configuration;
     
     switch (formData.type) {
       case 'points':
+        const pointsData = formData.points || {};
         configuration = {
-          minPoints: formData.points.minPoints,
-          events: formData.points.events
+          minPoints: pointsData.minPoints,
+          events: pointsData.events
         };
         break;
       case 'direct':
+        const directData = formData.directAssignment || {};
         configuration = {
-          assignerProfiles: formData.directAssignment.assignerProfiles,
-          assignmentLimit: formData.directAssignment.assignmentLimit
+          assignerProfiles: directData.assignerProfiles,
+          assignmentLimit: directData.assignmentLimit
         };
         break;
       case 'events':
+        const eventsData = formData.eventCount || {};
         configuration = {
-          eventType: formData.eventCount.eventType,
-          minOccurrences: formData.eventCount.minOccurrences,
-          periodType: formData.eventCount.periodType,
-          periodValue: formData.eventCount.periodValue,
-          requiredStreak: formData.eventCount.requiredStreak
+          eventType: eventsData.eventType,
+          minOccurrences: eventsData.minOccurrences,
+          periodType: eventsData.periodType,
+          periodValue: eventsData.periodValue,
+          requiredStreak: eventsData.requiredStreak
         };
         break;
       case 'ranking':
+        const rankingData = formData.ranking || {};
         configuration = {
-          rankingId: formData.ranking.rankingId,
-          requiredPosition: formData.ranking.requiredPosition
+          rankingId: rankingData.rankingId,
+          requiredPosition: rankingData.requiredPosition
         };
         break;
       default:
-        configuration = {};
+        // Preserve original configuration for unknown types
+        configuration = formData.configuration || {};
     }
 
-    // Construir o objeto para a API
-    return {
+    // Construir o objeto para a API - preserving all fields including uid and metadata
+    const result: any = {
       name: formData.name,
       description: formData.description,
       type: formData.type as any,
@@ -146,6 +156,21 @@ export const rulesApi = {
       context: formData.context,
       status: formData.status || 'active'
     };
+
+    // Preserve uid for updates
+    if (formData.uid) {
+      result.uid = formData.uid;
+    }
+
+    // Preserve additional metadata fields
+    const metadataFields = ['createdAt', 'updatedAt', 'createdBy', 'metadata', 'assignedBadges'];
+    metadataFields.forEach(field => {
+      if (formData[field] !== undefined) {
+        result[field] = formData[field];
+      }
+    });
+
+    return result;
   },
 
   /**
@@ -154,6 +179,11 @@ export const rulesApi = {
    * @returns Dados formatados para o formulário
    */
   transformApiToFormData(apiData: Rule): any {
+    // Null safety check
+    if (!apiData) {
+      return {};
+    }
+
     const formData: any = {
       uid: apiData.uid,
       name: apiData.name,
@@ -163,6 +193,14 @@ export const rulesApi = {
       status: apiData.status
     };
 
+    // Preserve additional metadata fields
+    const metadataFields = ['createdAt', 'updatedAt', 'createdBy', 'metadata', 'assignedBadges'];
+    metadataFields.forEach(field => {
+      if ((apiData as any)[field] !== undefined) {
+        formData[field] = (apiData as any)[field];
+      }
+    });
+
     // Configuração específica por tipo
     const config = apiData.configuration || {};
 
@@ -170,13 +208,27 @@ export const rulesApi = {
       case 'points':
         formData.points = {
           minPoints: config.minPoints || 0,
-          events: config.events || []
+          events: config.events || [],
+          // Preserve additional configuration fields for points
+          ...Object.keys(config).reduce((acc, key) => {
+            if (key !== 'minPoints' && key !== 'events') {
+              acc[key] = config[key];
+            }
+            return acc;
+          }, {} as any)
         };
         break;
       case 'direct':
         formData.directAssignment = {
           assignerProfiles: config.assignerProfiles || [],
-          assignmentLimit: config.assignmentLimit || 0
+          assignmentLimit: config.assignmentLimit || 0,
+          // Preserve additional configuration fields for direct
+          ...Object.keys(config).reduce((acc, key) => {
+            if (key !== 'assignerProfiles' && key !== 'assignmentLimit') {
+              acc[key] = config[key];
+            }
+            return acc;
+          }, {} as any)
         };
         break;
       case 'events':
@@ -184,15 +236,35 @@ export const rulesApi = {
           eventType: config.eventType || '',
           minOccurrences: config.minOccurrences || 0,
           periodType: config.periodType || 'day',
-          periodValue: config.periodValue || 1,
-          requiredStreak: config.requiredStreak || 0
+          periodValue: config.periodValue || 0, // Fixed: default to 0 instead of 1
+          requiredStreak: config.requiredStreak || 0,
+          // Preserve additional configuration fields for events
+          ...Object.keys(config).reduce((acc, key) => {
+            if (!['eventType', 'minOccurrences', 'periodType', 'periodValue', 'requiredStreak'].includes(key)) {
+              acc[key] = config[key];
+            }
+            return acc;
+          }, {} as any)
         };
         break;
       case 'ranking':
         formData.ranking = {
           rankingId: config.rankingId || '',
-          requiredPosition: config.requiredPosition || 1
+          requiredPosition: config.requiredPosition || 1,
+          // Preserve additional configuration fields for ranking
+          ...Object.keys(config).reduce((acc, key) => {
+            if (key !== 'rankingId' && key !== 'requiredPosition') {
+              acc[key] = config[key];
+            }
+            return acc;
+          }, {} as any)
         };
+        break;
+      default:
+        // For unknown types, preserve the entire configuration
+        if (config && Object.keys(config).length > 0) {
+          formData.configuration = config;
+        }
         break;
     }
 

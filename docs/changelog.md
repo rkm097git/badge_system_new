@@ -2,6 +2,95 @@
 
 Este documento registra todas as mudanças significativas realizadas durante o processo de refatoração do Sistema de Badges.
 
+## [2025-05-28] Correção Crítica na API de Regras
+
+### Correção de 8 Falhas de Teste no rulesApi
+
+- **Problema 1: Falhas de Segurança com Valores Nulos**
+  - Corrigidas falhas nas funções `transformFormToApiInput` e `transformApiToFormData` que causavam crashes com entradas null/undefined
+  - Adicionadas verificações de segurança no início de ambas as funções
+  - Implementado tratamento gracioso para entradas vazias ou malformadas
+
+- **Problema 2: Perda de Campos em Transformações Round-trip**
+  - Corrigida preservação de campos essenciais (`uid`, `createdAt`, `updatedAt`, `createdBy`, `metadata`, `assignedBadges`)
+  - Implementado sistema de preservação de metadados em ambas as direções de transformação
+  - Garantida integridade de dados durante conversões form ↔ API ↔ form
+
+- **Problema 3: Valor Padrão Incorreto para periodValue**
+  - Corrigido valor padrão de `periodValue` de 1 para 0 em regras de contagem de eventos
+  - Alinhado comportamento com expectativas dos testes e lógica de negócio
+  - Garantida consistência na inicialização de formulários
+
+- **Problema 4: Perda de Configurações para Tipos Desconhecidos**
+  - Implementada preservação de configurações originais para tipos de regra não reconhecidos
+  - Adicionado suporte para campos de configuração adicionais dentro de tipos conhecidos
+  - Garantida extensibilidade e compatibilidade com futuras implementações
+
+### Melhorias Adicionais Implementadas
+
+- **Tratamento Robusto de Configurações Complexas**
+  - Preservação de campos aninhados e metadados complexos
+  - Suporte para configurações estendidas em todos os tipos de regra
+  - Manutenção de estruturas de dados personalizadas
+
+- **Testes Abrangentes**
+  - Todos os 45 testes do rulesApi agora passam com sucesso
+  - Cobertura completa para casos de borda e transformações round-trip
+  - Validação de preservação de dados em cenários complexos
+
+- **Documentação Atualizada**
+  - Criado guia detalhado das correções em `docs/rulesapi-fixes.md`
+  - Documentados todos os problemas identificados e soluções implementadas
+  - Adicionados exemplos de código e impacto das mudanças
+
+### Arquivos Modificados
+- `src/features/rules/services/rulesApi.ts` - Funções de transformação corrigidas e aprimoradas
+- `docs/rulesapi-fixes.md` - Documentação detalhada das correções
+- `docs/changelog.md` - Registro das mudanças
+
+### Resultados dos Testes
+```bash
+Test Suites: 1 passed, 1 total
+Tests:       45 passed, 45 total
+Snapshots:   0 total
+Time:        4.571 s
+```
+
+## Fase 1: Testes e Componentes
+
+### [2025-04-19] Implementação do Módulo de Transformação de Dados
+
+- Criado e implementado o novo módulo `transformers.ts`:
+  - Desenvolvido módulo para centralizar todas as transformações de dados entre o formato do formulário e o formato da API
+  - Implementadas funções principais `transformFormToApiData` e `transformApiToFormData`
+  - Criados transformadores específicos para cada tipo de regra:
+    - `transformPointsRuleData` para regras de pontuação
+    - `transformDirectAssignmentData` para regras de atribuição direta
+    - `transformEventCountData` para regras de contagem de eventos
+    - `transformRankingData` para regras baseadas em ranking
+  - Adicionados tratamentos de robustez para valores nulos, indefinidos e casos de borda
+
+- Implementados testes abrangentes para o módulo de transformação:
+  - Criados testes básicos em `transformers.test.js` para funcionalidades principais
+  - Implementados testes avançados em `transformers.extended.test.js` focados em casos de borda:
+    - Tratamento de valores nulos em objetos aninhados
+    - Preservação de zero e arrays vazios como valores válidos
+    - Tratamento de caracteres especiais e suporte a internacionalização
+    - Testes de integridade em transformações completas de ida e volta
+    - Manipulação de objetos complexos e metadados
+  - Adicionada cobertura completa para todos os cenários críticos de transformação
+
+- Criada documentação detalhada sobre o módulo:
+  - Criado arquivo `transformation-utilities.md` explicando o propósito e funcionamento
+  - Adicionados exemplos de uso e padrões implementados
+  - Documentado processo de extensão para novos tipos de regra
+
+- Extraída lógica de transformação do serviço `rulesApi.ts`:
+  - Removido código duplicado de transformação
+  - Substituído por chamadas às funções dedicadas do módulo `transformers.ts`
+  - Melhorada a separação de responsabilidades no sistema
+  - Facilitada a manutenção e evolução do código
+
 ## Fase 4: Usabilidade e Experiência do Usuário
 
 ### [2025-04-15] Correção Robusta de Truncamento de Texto
